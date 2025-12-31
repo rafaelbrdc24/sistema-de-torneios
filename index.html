@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="icone.png">
+<title>Campeonato de Luta</title>
+
+<style>
+:root {
+    --bg: #0f1220;
+    --card: #1b1f3a;
+    --accent: #f1c40f;
+    --win: #2ecc71;
+    --path: #3498db;
+    --text: #ffffff;
+    --muted: #9aa0c7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, #0f1220, #15193c);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    padding: 30px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--accent);
+}
+
+/* ===== SETUP ===== */
+.setup {
+    background: var(--card);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+}
+
+.setup label {
+    color: var(--muted);
+    display: block;
+    margin-top: 10px;
+}
+
+.setup select,
+.setup input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: none;
+}
+
+.setup button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.start { background: var(--accent); color: #000; }
+.shuffle { background: #3498db; color: #fff; }
+
+/* ===== BRACKET ===== */
+.bracket {
+    display: flex;
+    gap: 30px;
+    margin-top: 40px;
+    overflow-x: auto;
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.round h2 {
+    text-align: center;
+    color: var(--accent);
+    font-size: 16px;
+}
+
+.match {
+    background: var(--card);
+    padding: 10px;
+    min-width: 160px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.match:hover {
+    background: #23286b;
+    transform: scale(1.05);
+}
+
+.match.empty {
+    color: var(--muted);
+    cursor: default;
+}
+
+.match.winner {
+    background: var(--win);
+    color: #000;
+    font-weight: bold;
+}
+
+.match.path {
+    border: 2px solid var(--path);
+    box-shadow: 0 0 10px rgba(52,152,219,.7);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.footer button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    background: #e74c3c;
+    color: #fff;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🏆 Campeonato de Luta</h1>
+
+<div class="setup" id="setup">
+    <label>Quantidade de participantes</label>
+    <select id="quantidade" onchange="criarInputs()">
+        <option value="4">4</option>
+        <option value="8" selected>8</option>
+        <option value="16">16</option>
+        <option value="32">32</option>
+    </select>
+
+    <div id="inputs"></div>
+
+    <button class="shuffle" onclick="embaralharInputs()">🔀 Embaralhar novamente</button>
+    <button class="start" onclick="iniciarTorneio()">Iniciar Torneio</button>
+</div>
+
+<div id="bracket" class="bracket" style="display:none;"></div>
+
+<div class="footer" id="footer" style="display:none;">
+    <button onclick="location.reload()">Reiniciar</button>
+</div>
+
+</div>
+
+<script>
+let rodadas = [];
+let historico = [];
+
+/* ===== INPUTS ===== */
+function criarInputs() {
+    const qtd = +quantidade.value;
+    inputs.innerHTML = "";
+    for (let i = 1; i <= qtd; i++) {
+        const input = document.createElement("input");
+        input.value = "Lutador " + i;
+        inputs.appendChild(input);
+    }
+}
+criarInputs();
+
+/* ===== EMBARALHAR ===== */
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+
+function embaralharInputs() {
+    const values = [...inputs.children].map(i => i.value);
+    shuffle(values);
+    [...inputs.children].forEach((i, idx) => i.value = values[idx]);
+}
+
+/* ===== INICIAR ===== */
+function iniciarTorneio() {
+    let nomes = [...inputs.children].map(i => i.value);
+    shuffle(nomes);
+
+    rodadas = [nomes];
+    historico = [];
+
+    while (rodadas.at(-1).length > 1)
+        rodadas.push(new Array(rodadas.at(-1).length / 2).fill("?"));
+
+    setup.style.display = "none";
+    bracket.style.display = "flex";
+    footer.style.display = "block";
+    render();
+}
+
+/* ===== RENDER ===== */
+function render() {
+    bracket.innerHTML = "";
+
+    rodadas.forEach((rodada, r) => {
+        const col = document.createElement("div");
+        col.className = "round";
+
+        const h = document.createElement("h2");
+        h.textContent = r === rodadas.length - 1 ? "🏆 Campeão" : `Rodada ${r + 1}`;
+        col.appendChild(h);
+
+        rodada.forEach((nome, i) => {
+            const m = document.createElement("div");
+            m.className = "match" + (nome === "?" ? " empty" : "");
+            m.textContent = nome;
+
+            if (historico.some(h => h.r === r && h.i === i))
+                m.classList.add("path");
+
+            if (r < rodadas.length - 1 && nome !== "?")
+                m.onclick = () => vencer(r, i);
+
+            col.appendChild(m);
+        });
+
+        bracket.appendChild(col);
+    });
+}
+
+/* ===== VENCER + CAMINHO DO CAMPEÃO ===== */
+function vencer(r, i) {
+    const nome = rodadas[r][i];
+    const prox = Math.floor(i / 2);
+
+    rodadas[r + 1][prox] = nome;
+    historico.push({ r, i });
+
+    if (r + 1 === rodadas.length - 1)
+        destacarCaminho(nome);
+
+    render();
+}
+
+function destacarCaminho(campeao) {
+    historico = historico.filter(h => rodadas[h.r][h.i] === campeao);
+}
+</script>
+
+</body>
+</html>
