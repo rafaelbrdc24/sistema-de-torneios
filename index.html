@@ -391,10 +391,12 @@ let historico = [];
 // Elementos de áudio
 const audioClaps = new Audio('claps.mp3');
 const audioApplause = new Audio('applause_botao.mp3');
+const audioVictory = new Audio('Victory.mp3');
 
 // Configuração dos áudios
 audioClaps.volume = 0.7;
 audioApplause.volume = 0.8;
+audioVictory.volume = 0.8;
 
 // Função para tocar aplausos
 function tocarAplausos() {
@@ -517,10 +519,9 @@ function vencer(r, i) {
     // Se chegou na final, destacar todo o caminho
     if (r + 1 === rodadas.length - 1) {
         destacarCaminhoCompleto();
-        // Toca aplausos mais longos quando o campeão é definido
-        setTimeout(() => {
-            tocarAplausos();
-        }, 500);
+        // Toca o som de vitória quando o campeão é definido
+        audioVictory.currentTime = 0; // Reinicia o áudio
+        audioVictory.play().catch(e => console.log('Erro ao tocar áudio:', e));
     }
 
     render();
