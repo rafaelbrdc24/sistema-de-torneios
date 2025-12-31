@@ -12,6 +12,8 @@
     --accent: #f1c40f;
     --win: #2ecc71;
     --path: #3498db;
+    --champion-path: #f39c12;
+    --champion-glow: #ffd700;
     --text: #ffffff;
     --muted: #9aa0c7;
 }
@@ -22,11 +24,13 @@ body {
     margin: 0;
     font-family: "Segoe UI", system-ui, sans-serif;
     background: linear-gradient(135deg, #0f1220, #15193c);
+    background-attachment: fixed;
     color: var(--text);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .container {
@@ -38,14 +42,53 @@ body {
 h1 {
     text-align: center;
     color: var(--accent);
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+    letter-spacing: 2px;
+}
+
+.champion-announcement {
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(230, 126, 34, 0.2));
+    border-radius: 12px;
+    border: 2px solid var(--champion-glow);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    animation: announcementPulse 3s ease-in-out infinite;
+}
+
+.champion-announcement h2 {
+    color: var(--champion-glow);
+    margin: 0;
+    font-size: 1.8em;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+.champion-announcement p {
+    color: var(--text);
+    margin: 10px 0 0 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+@keyframes announcementPulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(255, 215, 0, 0.7);
+    }
 }
 
 /* ===== SETUP ===== */
 .setup {
-    background: var(--card);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    background: linear-gradient(135deg, var(--card), #252a4a);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .setup label {
@@ -65,12 +108,25 @@ h1 {
 
 .setup button {
     width: 100%;
-    padding: 12px;
-    margin-top: 10px;
+    padding: 14px;
+    margin-top: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.setup button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.setup button:active {
+    transform: translateY(0);
 }
 
 .start { background: var(--accent); color: #000; }
@@ -79,36 +135,54 @@ h1 {
 /* ===== BRACKET ===== */
 .bracket {
     display: flex;
-    gap: 30px;
+    gap: 40px;
     margin-top: 40px;
     overflow-x: auto;
+    padding: 20px 0;
+    position: relative;
 }
 
 .round {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    position: relative;
+    min-width: 180px;
 }
 
 .round h2 {
     text-align: center;
     color: var(--accent);
-    font-size: 16px;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+    font-weight: bold;
+    padding: 10px;
+    background: rgba(241, 196, 15, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(241, 196, 15, 0.3);
 }
 
 .match {
-    background: var(--card);
-    padding: 10px;
-    min-width: 160px;
+    background: linear-gradient(135deg, var(--card), #252a4a);
+    padding: 14px 18px;
+    min-width: 170px;
     text-align: center;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: .2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-.match:hover {
-    background: #23286b;
-    transform: scale(1.05);
+.match:hover:not(.empty):not(.champion-path) {
+    background: linear-gradient(135deg, #23286b, #2d3570);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    border-color: rgba(52, 152, 219, 0.5);
 }
 
 .match.empty {
@@ -117,14 +191,104 @@ h1 {
 }
 
 .match.winner {
-    background: var(--win);
+    background: linear-gradient(135deg, var(--win), #27ae60);
     color: #000;
     font-weight: bold;
+    border: 2px solid #27ae60;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
 }
 
 .match.path {
     border: 2px solid var(--path);
     box-shadow: 0 0 10px rgba(52,152,219,.7);
+}
+
+.match.champion-path {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border: 3px solid var(--champion-glow);
+    box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.8),
+        0 0 40px rgba(255, 215, 0, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.2);
+    color: #000;
+    font-weight: bold;
+    animation: championGlow 2s ease-in-out infinite;
+    position: relative;
+    transform: scale(1.05);
+}
+
+.match.champion-path::before {
+    content: "👑";
+    position: absolute;
+    left: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    animation: crownFloat 2s ease-in-out infinite;
+}
+
+.match.champion-path::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+    border-radius: 8px;
+}
+
+@keyframes championGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 20px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+        box-shadow: 
+            0 0 30px rgba(255, 215, 0, 1),
+            0 0 60px rgba(255, 215, 0, 0.7),
+            inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+}
+
+@keyframes crownFloat {
+    0%, 100% {
+        transform: translateY(-50%) translateX(0);
+    }
+    50% {
+        transform: translateY(-50%) translateX(-5px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Linha conectando o caminho do campeão */
+.champion-connection {
+    position: absolute;
+    background: linear-gradient(90deg, var(--champion-glow), transparent);
+    height: 3px;
+    z-index: 1;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    animation: pathGlow 2s ease-in-out infinite;
+}
+
+@keyframes pathGlow {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 /* ===== FOOTER ===== */
@@ -209,6 +373,7 @@ function iniciarTorneio() {
 
     rodadas = [nomes];
     historico = [];
+    caminhoCampeao = []; // Reset do caminho do campeão
 
     while (rodadas.at(-1).length > 1)
         rodadas.push(new Array(rodadas.at(-1).length / 2).fill("?"));
@@ -223,6 +388,22 @@ function iniciarTorneio() {
 function render() {
     bracket.innerHTML = "";
 
+    // Remove anúncio anterior se existir
+    const anuncioExistente = document.querySelector(".champion-announcement");
+    if (anuncioExistente) anuncioExistente.remove();
+
+    // Adiciona anúncio do campeão se houver
+    if (rodadas.length > 0 && rodadas[rodadas.length - 1][0] !== "?") {
+        const campeao = rodadas[rodadas.length - 1][0];
+        const anuncio = document.createElement("div");
+        anuncio.className = "champion-announcement";
+        anuncio.innerHTML = `
+            <h2>👑 CAMPEÃO 👑</h2>
+            <p>${campeao}</p>
+        `;
+        bracket.parentNode.insertBefore(anuncio, bracket);
+    }
+
     rodadas.forEach((rodada, r) => {
         const col = document.createElement("div");
         col.className = "round";
@@ -234,10 +415,16 @@ function render() {
         rodada.forEach((nome, i) => {
             const m = document.createElement("div");
             m.className = "match" + (nome === "?" ? " empty" : "");
-            m.textContent = nome;
 
-            if (historico.some(h => h.r === r && h.i === i))
+            // Verifica se faz parte do caminho do campeão
+            const noCaminho = caminhoCampeao.some(c => c.r === r && c.i === i);
+            if (noCaminho) {
+                m.classList.add("champion-path");
+            } else if (historico.some(h => h.r === r && h.i === i)) {
                 m.classList.add("path");
+            }
+
+            m.textContent = nome;
 
             if (r < rodadas.length - 1 && nome !== "?")
                 m.onclick = () => vencer(r, i);
@@ -250,21 +437,52 @@ function render() {
 }
 
 /* ===== VENCER + CAMINHO DO CAMPEÃO ===== */
+let caminhoCampeao = [];
+
 function vencer(r, i) {
     const nome = rodadas[r][i];
     const prox = Math.floor(i / 2);
 
     rodadas[r + 1][prox] = nome;
+    
+    // Adiciona ao histórico
     historico.push({ r, i });
 
-    if (r + 1 === rodadas.length - 1)
-        destacarCaminho(nome);
+    // Se chegou na final, destacar todo o caminho
+    if (r + 1 === rodadas.length - 1) {
+        destacarCaminhoCompleto();
+    }
 
     render();
 }
 
-function destacarCaminho(campeao) {
-    historico = historico.filter(h => rodadas[h.r][h.i] === campeao);
+function destacarCaminhoCompleto() {
+    // Reconstrói o caminho completo do campeão rastreando de trás para frente
+    caminhoCampeao = [];
+    
+    // Começa do campeão (final)
+    let posAtual = { r: rodadas.length - 1, i: 0 };
+    caminhoCampeao.push({ r: posAtual.r, i: posAtual.i });
+    
+    // Rastreia todas as posições anteriores do campeão
+    for (let r = rodadas.length - 2; r >= 0; r--) {
+        // A posição atual veio de uma das duas posições anteriores
+        // Precisamos encontrar qual delas está no histórico (foi clicada)
+        const pos1 = posAtual.i * 2;
+        const pos2 = posAtual.i * 2 + 1;
+        
+        // Verifica qual das duas posições está no histórico (foi a vencedora)
+        let posAnterior = pos1;
+        if (historico.some(h => h.r === r && h.i === pos2)) {
+            posAnterior = pos2;
+        }
+        
+        caminhoCampeao.push({ r, i: posAnterior });
+        posAtual = { r, i: posAnterior };
+    }
+    
+    // Inverte para ter do início ao fim
+    caminhoCampeao.reverse();
 }
 </script>
 
